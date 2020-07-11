@@ -16,7 +16,7 @@
     "types/vue.d.ts"
   ],
   "scripts": {
-    "dev": "node examples/server.js",
+    "start": "node examples/server.js",
     "build": "npm run build:main && npm run build:logger",
     "build:main": "node scripts/build-main.js",
     "build:logger": "node scripts/build-logger.js",

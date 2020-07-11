@@ -65,6 +65,7 @@ module.exports = {
     }
   },
 
+  // 这里并不懂
   optimization: {
     splitChunks: {
       cacheGroups: {
@@ -78,10 +79,11 @@ module.exports = {
   },
 
   plugins: [
+    // vue-loader文档提供的用法
     new VueLoaderPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
-    new webpack.DefinePlugin({
+    new webpack.DefinePlugin({ // 允许创建在编译时配置的常量。这在开发构建和生产构建允许不同的行为时是有用的
       __DEV__: JSON.stringify(true),
       'process.env': {
         NODE_ENV: JSON.stringify(process.env.NODE_ENV),

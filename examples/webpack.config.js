@@ -65,14 +65,15 @@ module.exports = {
     }
   },
 
-  // 这里并不懂
+  // 这里并不太懂
+  // @see: https://stackoverflow.com/questions/48985780/webpack-4-create-vendor-chunk
   optimization: {
     splitChunks: {
       cacheGroups: {
         vendors: {
           name: 'shared',
           filename: 'shared.js',
-          chunks: 'initial'
+          chunks: 'initial', // @see: https://webpack.js.org/plugins/split-chunks-plugin/#splitchunkschunks
         }
       }
     }

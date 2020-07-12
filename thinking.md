@@ -15,7 +15,14 @@
     * webpack-hot-middleware
   * 学习`webpack`的配置项：
     * [`glossary`](https://v4.webpack.js.org/glossary/)
-* `vuex`的`demo`搭建思路
+    
+### `vuex`的`demo`搭建思路
+> 通过`webpack`结合`express`搭建服务并将页面进行实时打包。
+
+适用于比较简单的`demo`展示：
+* `index.html`中设置统一的跳转
+* 配置多入口文件，每一个都是对应单独的`Vue`应用
+* 将打包好的`js`文件引入
 
 #### 挑战
 > 尝试了解下面的知识，为自己开发库做准备

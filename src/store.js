@@ -40,6 +40,7 @@ export class Store {
     // bind commit and dispatch to self
     const store = this;
     const { dispatch, commit } = this;
+    // 相当于自己实现了一个简单的bind,更改函数的this指向
     this.dispatch = function boundDispatch (type, payload) {
       return dispatch.call(store, type, payload);
     };

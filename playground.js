@@ -71,3 +71,16 @@
 //     }
 //   }
 // };
+
+const obj = { a: 1, b: 2, c: 3 };
+// 提前将对象进行处理：
+const newObj = { rawItem: { a: 1, b: 2, c: 3 } };
+
+Object.keys(obj).forEach(key => {
+  if (key === 'a') {
+
+  }
+});
+Object.keys(newObj).forEach(key => {
+
+});

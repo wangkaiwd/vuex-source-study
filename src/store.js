@@ -513,6 +513,8 @@ function registerGetter (store, type, rawGetter, local) {
 }
 
 function enableStrictMode (store) {
+  // 该操作是十分昂贵的，所以需要在生产环境禁用
+  // 同步深度监听store中state的变化，当state改变没有通过mutation时，会抛出异常
   store._vm.$watch(function () { return this._data.$$state; }, () => {
     if (__DEV__) {
       assert(store._committing, `do not mutate vuex store state outside mutation handlers.`);

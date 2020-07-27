@@ -306,6 +306,8 @@ function resetStoreVM (store, state, hot) {
   // 通过创建Vue实例，然后将store.state定义在Vue的data中，保证state的响应性
   store._vm = new Vue({
     data: {
+      // 以_或者$开头的属性，将不会被代理在Vue实例上，因为它们可能与Vue内部的属性和API方法发生冲突
+      // 您必须像vm.$data._property一样访问它们
       $$state: state
     },
     computed
@@ -373,7 +375,6 @@ function installModule (store, rootState, path, module, hot) {
       // 所以store.state和state即this._modules.root.state指向同一片堆内存空间，堆内存的键值对发生变化时，会同步更新
     });
   }
-  debugger
   const local = module.context = makeLocalContext(store, namespace, path);
 
   // 为store设置mutations
@@ -412,6 +413,7 @@ function makeLocalContext (store, namespace, path) {
       let { type } = args;
 
       if (!options || !options.root) {
+        // 如果没有传入{ root: true }，会拼接命名空间
         type = namespace + type;
         if (__DEV__ && !store._actions[type]) {
           console.error(`[vuex] unknown local action type: ${args.type}, global type: ${type}`);

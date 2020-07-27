@@ -443,6 +443,7 @@ function makeLocalContext (store, namespace, path) {
 
   // getters and state object must be gotten lazily
   // because they will be changed by vm update
+  // getters和state 通过 Object get 方法来定义获取值时进行的操作，这样可以同时定义多个属性的get/set方法
   Object.defineProperties(local, {
     getters: {
       get: noNamespace
@@ -462,15 +463,19 @@ function makeLocalGetters (store, namespace) {
     const gettersProxy = {};
     const splitPos = namespace.length;
     Object.keys(store.getters).forEach(type => {
+      // type = cart/cartProducts
+      // namespace = cart/
       // skip if the target getter is not match this namespace
       if (type.slice(0, splitPos) !== namespace) return;
 
       // extract local getter type
+      // 获取当前getter的key值，即cartProducts
       const localType = type.slice(splitPos);
 
       // Add a port to the getters proxy.
       // Define as getter property because
       // we do not want to evaluate the getters in this time.
+      // 将store中带有命名空间的getters处理为不带有命名空间的当前模块的getters
       Object.defineProperty(gettersProxy, localType, {
         get: () => store.getters[type],
         enumerable: true
@@ -478,7 +483,7 @@ function makeLocalGetters (store, namespace) {
     });
     store._makeLocalGettersCache[namespace] = gettersProxy;
   }
-
+  // 返回当前模块的getters
   return store._makeLocalGettersCache[namespace];
 }
 

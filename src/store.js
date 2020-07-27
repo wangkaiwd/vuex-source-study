@@ -36,7 +36,6 @@ export class Store {
     this._subscribers = [];
     this._watcherVM = new Vue();
     this._makeLocalGettersCache = Object.create(null);
-
     // bind commit and dispatch to self
     const store = this;
     const { dispatch, commit } = this;
@@ -57,7 +56,6 @@ export class Store {
     // this also recursively registers all sub-modules
     // and collects all module getters inside this._wrappedGetters
     installModule(this, state, [], this._modules.root);
-
     // initialize the store vm, which is responsible for the reactivity
     // (also registers _wrappedGetters as computed properties)
     resetStoreVM(this, state);
@@ -71,6 +69,7 @@ export class Store {
     }
   }
 
+  // 获取state的值时会store._vm._data.$$state中进行获取
   get state () {
     return this._vm._data.$$state;
   }
@@ -330,8 +329,12 @@ function resetStoreVM (store, state, hot) {
   }
 }
 
+// 安装模块
+// store: Store的实例， rootState: 根模块state, path: 遍历的模块key组成的数组，module: 当前遍历模块
 function installModule (store, rootState, path, module, hot) {
+  // 当path为空数组时，遍历的是根模块
   const isRoot = !path.length;
+  // 根据path获取当前遍历模块的命名空间namespace
   const namespace = store._modules.getNamespace(path);
 
   // register in namespace map
@@ -339,12 +342,16 @@ function installModule (store, rootState, path, module, hot) {
     if (store._modulesNamespaceMap[namespace] && __DEV__) {
       console.error(`[vuex] duplicate namespace ${namespace} for the namespaced module ${path.join('/')}`);
     }
+    // 在store上存储模块命名空间的映射，key为namespace,value为module
+    // 每个模块都应该有自己单独的命名空间，方便检查命名空间是否重复并提醒用户
     store._modulesNamespaceMap[namespace] = module;
   }
 
   // set state
   if (!isRoot && !hot) {
+    // 根据根state以及path找到对应的父state
     const parentState = getNestedState(rootState, path.slice(0, -1));
+    // path的最后一项为当前处理的模块名
     const moduleName = path[path.length - 1];
     store._withCommit(() => {
       if (__DEV__) {
@@ -354,7 +361,16 @@ function installModule (store, rootState, path, module, hot) {
           );
         }
       }
+      // 保证为state赋值时，值为响应式
       Vue.set(parentState, moduleName, module.state);
+      // state => this._modules.root.state
+      // store._vm = new Vue({
+      //    data: {
+      //        $$state: state
+      //    }
+      // })
+      // store.state => store._vm._data.$$state
+      // 所以store.state和state即this._modules.root.state指向同一片堆内存空间，堆内存的键值对发生变化时，会同步更新
     });
   }
 

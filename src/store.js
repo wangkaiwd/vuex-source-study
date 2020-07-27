@@ -373,9 +373,10 @@ function installModule (store, rootState, path, module, hot) {
       // 所以store.state和state即this._modules.root.state指向同一片堆内存空间，堆内存的键值对发生变化时，会同步更新
     });
   }
-
+  debugger
   const local = module.context = makeLocalContext(store, namespace, path);
 
+  // 为store设置mutations
   module.forEachMutation((mutation, key) => {
     const namespacedType = namespace + key;
     registerMutation(store, namespacedType, mutation, local);
@@ -403,9 +404,9 @@ function installModule (store, rootState, path, module, hot) {
  */
 function makeLocalContext (store, namespace, path) {
   const noNamespace = namespace === '';
-
+  // 当有命名空间的时候，为mutations和actions添加命名空间
   const local = {
-    dispatch: noNamespace ? store.dispatch : (_type, _payload, _options) => {
+    dispatch: noNamespace ? store.dispatch : (_type, _payload, _options) => { // 嵌套一个函数，帮助用户做一些事情
       const args = unifyObjectStyle(_type, _payload, _options);
       const { payload, options } = args;
       let { type } = args;
@@ -417,7 +418,7 @@ function makeLocalContext (store, namespace, path) {
           return;
         }
       }
-
+      // 在函数执行的时候执行真正的逻辑
       return store.dispatch(type, payload);
     },
 
@@ -498,6 +499,7 @@ function registerAction (store, type, handler, local) {
       rootState: store.state
     }, payload);
     if (!isPromise(res)) {
+      // 返回值不是Promise的话通过Promise.resolve转换为Promise
       res = Promise.resolve(res);
     }
     if (store._devtoolHook) {

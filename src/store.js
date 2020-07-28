@@ -56,6 +56,7 @@ export class Store {
     // this also recursively registers all sub-modules
     // and collects all module getters inside this._wrappedGetters
     installModule(this, state, [], this._modules.root);
+    console.log(this);
     // initialize the store vm, which is responsible for the reactivity
     // (also registers _wrappedGetters as computed properties)
     resetStoreVM(this, state);
@@ -375,6 +376,9 @@ function installModule (store, rootState, path, module, hot) {
       // 所以store.state和state即this._modules.root.state指向同一片堆内存空间，堆内存的键值对发生变化时，会同步更新
     });
   }
+  // 生成当前模块的state,getters,commit,dispatch
+  // 方便之后在注册mutation,action,getter时使用当前模块的一些属性和方法：
+  // 如在action中可以使用局部的commit,dispatch来调用当前模块的mutation和action
   const local = module.context = makeLocalContext(store, namespace, path);
 
   // 为store设置mutations
@@ -498,11 +502,17 @@ function registerAction (store, type, handler, local) {
   const entry = store._actions[type] || (store._actions[type] = []);
   entry.push(function wrappedActionHandler (payload) {
     let res = handler.call(store, {
+      // 当前模块的dispatch,会帮用户拼接命名空间。当传入第三个参数 { root: true }，调用全局的dispatch
       dispatch: local.dispatch,
+      // 当前模块的commit, 会帮用户拼接命名空间
       commit: local.commit,
+      // 当前模块的getters, 会从命名空间中将当前的getter进行分离
       getters: local.getters,
+      // 通过path获取到当前模块的state
       state: local.state,
+      // 全局的getters
       rootGetters: store.getters,
+      // 全局的state
       rootState: store.state
     }, payload);
     if (!isPromise(res)) {
@@ -527,6 +537,7 @@ function registerGetter (store, type, rawGetter, local) {
     }
     return;
   }
+  // 将函数绑定到store._wrappedGetters中
   store._wrappedGetters[type] = function wrappedGetter (store) {
     return rawGetter(
       local.state, // local state

@@ -89,6 +89,7 @@ export class Store {
       options
     } = unifyObjectStyle(_type, _payload, _options);
 
+    // 插件调用subscribe方法是回调函数的参数
     const mutation = { type, payload };
     const entry = this._mutations[type];
     if (!entry) {
@@ -97,12 +98,15 @@ export class Store {
       }
       return;
     }
+    // 用_withCommit包裹来判断是否同步更改state
     this._withCommit(() => {
+      // commit时调用mutation,参数为payload
       entry.forEach(function commitIterator (handler) {
         handler(payload);
       });
     });
 
+    // 调用commit更改state时，调用所有插件中订阅的方法
     this._subscribers
       .slice() // shallow copy to prevent iterator invalidation if subscriber synchronously calls unsubscribe
       .forEach(sub => sub(mutation, this.state));
@@ -292,7 +296,9 @@ function resetStoreVM (store, state, hot) {
     // use computed to leverage its lazy-caching mechanism
     // direct inline function use will lead to closure preserving oldVm.
     // using partial to return function with only arguments preserved in closure environment.
+    // 将getter放到计算属性中
     computed[key] = partial(fn, store);
+    // store.getters中的属性从store中创建的 vue instance 中获取
     Object.defineProperty(store.getters, key, {
       get: () => store._vm[key],
       enumerable: true // for local getters
@@ -305,6 +311,7 @@ function resetStoreVM (store, state, hot) {
   const silent = Vue.config.silent;
   Vue.config.silent = true;
   // 通过创建Vue实例，然后将store.state定义在Vue的data中，保证state的响应性
+  // 将getters放入到计算属性中，在从getters中取值时会从store._vm中获取
   store._vm = new Vue({
     data: {
       // 以_或者$开头的属性，将不会被代理在Vue实例上，因为它们可能与Vue内部的属性和API方法发生冲突
@@ -317,6 +324,7 @@ function resetStoreVM (store, state, hot) {
 
   // enable strict mode for new vm
   if (store.strict) {
+    // 启用严格模式，当通过mutation异步更改state时会报错
     enableStrictMode(store);
   }
 

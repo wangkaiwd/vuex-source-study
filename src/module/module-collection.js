@@ -32,7 +32,7 @@ export default class ModuleCollection {
     }
     // 格式化用户配置项，并为每个模块原型上添加一些公有方法，方便调用
     const newModule = new Module(rawModule, runtime);
-    console.log('newModule', newModule);
+    // console.log('newModule', newModule);
     // 处理根模块
     if (path.length === 0) {
       this.root = newModule;

@@ -21,7 +21,7 @@ export class Store {
     }
 
     const {
-      plugins = [],
+      plugins = [], // 配置项中的插件选项，默认值为空对象
       strict = false
     } = options;
 
@@ -62,6 +62,7 @@ export class Store {
     resetStoreVM(this, state);
 
     // apply plugins
+    // 依次执行插件数组中的每个函数，参数为Store实例this，可以调用store的属性和方法
     plugins.forEach(plugin => plugin(this));
 
     const useDevtools = options.devtools !== undefined ? options.devtools : Vue.config.devtools;
@@ -149,11 +150,14 @@ export class Store {
         console.error(e);
       }
     }
-
+    // 执行所有的actions，actions中的函数会被处理成返回Promise,当同一type有多个action时，通过Promise.all进行处理
+    // 最终得到的result也是promise
     const result = entry.length > 1
       ? Promise.all(entry.map(handler => handler(payload)))
       : entry[0](payload);
-
+    // 如果不用处理额外逻辑的话，可以直接将promise进行返回
+    // return result;
+    // 返回一个新的Promise,该Promise的value是result的value，该Promise失败的reason是result失败的reason
     return new Promise((resolve, reject) => {
       result.then(res => {
         try {
@@ -169,6 +173,7 @@ export class Store {
         resolve(res);
       }, error => {
         try {
+          // 插件订阅action调用
           this._actionSubscribers
             .filter(sub => sub.error)
             .forEach(sub => sub.error(action, this.state, error));
@@ -206,6 +211,7 @@ export class Store {
   }
 
   registerModule (path, rawModule, options = {}) {
+    // path为字符串时将其处理为数组
     if (typeof path === 'string') path = [path];
 
     if (__DEV__) {
@@ -213,9 +219,13 @@ export class Store {
       assert(path.length > 0, 'cannot register the root module by using registerModule.');
     }
 
+    // 进行模块收集，根据path以及用户传入的选项
+    // 根据path将其放到this._modules.root上
     this._modules.register(path, rawModule);
+    // 将新加到this._modules.root上的模块通过path安装到store上
     installModule(this, this.state, path, this._modules.get(path), options.preserveState);
     // reset store to update getters...
+    // 为store添加新注册的getters
     resetStoreVM(this, this.state);
   }
 
@@ -258,11 +268,14 @@ export class Store {
 }
 
 function genericSubscribe (fn, subs, options) {
+  // 如果fn在subs中不存在，options中传入{ prepend: true }会将fn放到fn的第一项
+  // 否则会将fn放入到subs中的最后一项
   if (subs.indexOf(fn) < 0) {
     options && options.prepend
       ? subs.unshift(fn)
       : subs.push(fn);
   }
+  // 会返回取消订阅(unsubscribe)函数，将fn从subs中删除，这样在调用mutation的时候就不会触发fn
   return () => {
     const i = subs.indexOf(fn);
     if (i > -1) {

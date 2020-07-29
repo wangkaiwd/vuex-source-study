@@ -1,18 +1,17 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import cart from './modules/cart'
-import products from './modules/products'
-import createLogger from '../../../src/plugins/logger'
+import Vue from 'vue';
+import Vuex from 'vuex';
+import cart from './modules/cart';
+import products from './modules/products';
+import a from './modules/a';
+import b from './modules/b';
+import createLogger from '../../../src/plugins/logger';
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
-const debug = process.env.NODE_ENV !== 'production'
+const debug = process.env.NODE_ENV !== 'production';
 
 export default new Vuex.Store({
-  modules: {
-    cart,
-    products
-  },
+  modules: { cart, products, a, b },
   strict: debug,
   plugins: debug ? [createLogger()] : []
-})
+});

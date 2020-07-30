@@ -15,8 +15,5 @@ import ShoppingCart from './ShoppingCart.vue';
 
 export default {
   components: { ProductList, ShoppingCart },
-  mounted () {
-    console.log(this.$store);
-  }
 };
 </script>

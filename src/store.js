@@ -368,6 +368,7 @@ function installModule (store, rootState, path, module, hot) {
     }
     // 在store上存储模块命名空间的映射，key为namespace,value为module
     // 每个模块都应该有自己单独的命名空间，方便检查命名空间是否重复并提醒用户
+    // 也方便之后在辅助函数中通过命名空间来获取到其对应的模块
     store._modulesNamespaceMap[namespace] = module;
   }
 
@@ -400,6 +401,7 @@ function installModule (store, rootState, path, module, hot) {
   // 生成当前模块的state,getters,commit,dispatch
   // 方便之后在注册mutation,action,getter时使用当前模块的一些属性和方法：
   // 如在action中可以使用局部的commit,dispatch来调用当前模块的mutation和action
+  // 为module.context赋值，方便之后在辅助函数中从module通过context来获取当前模块的state,getters,dispatch,action
   const local = module.context = makeLocalContext(store, namespace, path);
 
   // 为store设置mutations
